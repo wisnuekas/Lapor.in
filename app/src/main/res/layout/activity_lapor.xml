@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    tools:context="com.example.wisnuekas.laporin.LaporActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:focusableInTouchMode="true">
+
+        <TextView
+            android:id="@+id/textView4"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Gambar" />
+
+        <ImageView
+            android:id="@+id/image_upload"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:src="@drawable/image_not_found"
+            android:scaleType="centerCrop"/>
+
+        <Button
+            android:id="@+id/button_choose"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:text="Pilih gambar"
+            android:textAlignment="center"
+            android:textAllCaps="false" />
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Keterangan" />
+
+        <EditText
+            android:id="@+id/annotation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="textMultiLine"
+            android:lines="3"
+            android:scrollbars="vertical"
+            android:layout_marginBottom="16dp"/>
+
+        <TextView
+            android:id="@+id/textView3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Lokasi" />
+
+
+        <EditText
+            android:id="@+id/geo_tag"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Ketuk untuk pilih lokasi"
+            android:enabled="false"/>
+
+        <Button
+            android:id="@+id/button_send"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Kirim"
+            android:background="@color/colorAccent"
+            android:textColor="@color/colorDivider"
+            android:layout_marginTop="32dp"/>
+    </LinearLayout>
+
+</ScrollView>

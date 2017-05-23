@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:id="@+id/grp1" android:checkableBehavior="single">
+        <item
+            android:id="@+id/lapor"
+            android:icon="@drawable/ic_volume_up_black_24dp"
+            android:title="Lapor" />
+        <item
+            android:id="@+id/laporan_saya"
+            android:icon="@drawable/ic_view_list_black_24dp"
+            android:title="Laporan saya" />
+
+    </group>
+
+    <group android:id="@+id/grp2" android:checkableBehavior="single">
+        <item
+            android:id="@+id/panduan"
+            android:icon="@drawable/ic_help_black_24dp"
+            android:title="Panduan" />
+    </group>
+</menu>
