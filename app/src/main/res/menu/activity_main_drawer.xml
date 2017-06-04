@@ -4,7 +4,7 @@
     <group android:id="@+id/grp1" android:checkableBehavior="single">
         <item
             android:id="@+id/lapor"
-            android:icon="@drawable/ic_volume_up_black_24dp"
+            android:icon="@drawable/ic_add_black_24dp"
             android:title="Lapor" />
         <item
             android:id="@+id/laporan_saya"
