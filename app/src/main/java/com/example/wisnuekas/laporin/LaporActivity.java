@@ -103,24 +103,32 @@ public class LaporActivity extends AppCompatActivity {
         String nameImg = date+"_"+coordinate;
 
 
-        //Uploading code
-        try {
-            String uploadId = UUID.randomUUID().toString();
+        if (path != null){
+            //Uploading code
+            try {
+                String uploadId = UUID.randomUUID().toString();
 
-            //Creating a multi part request
-            new MultipartUploadRequest(this, uploadId, Constants.UPLOAD_URL)
-                    .addFileToUpload(path, "image") //Adding file
-                    .addParameter("name_img", nameImg)
-                    .addParameter("annotation", annotation) //Adding text parameter to the request
-                    .addParameter("coordinate", coordinate)
-                    .addParameter("date", date)
-                    .setNotificationConfig(new UploadNotificationConfig())
-                    .setMaxRetries(2)
-                    .startUpload(); //Starting the upload
+                //Creating a multi part request
+                new MultipartUploadRequest(this, uploadId, Constants.UPLOAD_URL)
+                        .addFileToUpload(path, "image") //Adding file
+                        .addParameter("name_img", nameImg)
+                        .addParameter("annotation", annotation) //Adding text parameter to the request
+                        .addParameter("coordinate", coordinate)
+                        .addParameter("date", date)
+                        .setNotificationConfig(new UploadNotificationConfig())
+                        .setMaxRetries(2)
+                        .startUpload(); //Starting the upload
 
-        } catch (Exception exc) {
-            Toast.makeText(this, exc.getMessage(), Toast.LENGTH_SHORT).show();
+            } catch (Exception exc) {
+                Toast.makeText(this, exc.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        }else {
+
+            //Displaying a toast
+            Toast.makeText(this, "Gambar masih kosong", Toast.LENGTH_LONG).show();
         }
+
+
     }
 
     //method to show file chooser

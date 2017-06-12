@@ -1,15 +1,41 @@
 package com.example.wisnuekas.laporin;
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class LaporanSayaActivity extends AppCompatActivity {
+
+    //Creating List Laporan
+    private List<DataLaporan> listDataLaporans;
+
+    //Creating Views
+    private RecyclerView recyclerView;
+    private RecyclerView.LayoutManager layoutManager;
+    private RecyclerView.Adapter adapter;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -18,47 +44,75 @@ public class LaporanSayaActivity extends AppCompatActivity {
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        TextView cancel = (TextView) findViewById(R.id.cancelLaporan1);
-        cancel.setOnClickListener(new DeleteListener());
+        //Initializing Views
+        recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
+        recyclerView.setHasFixedSize(true);
+        layoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(layoutManager);
 
+        //Initializing our superheroes list
+        listDataLaporans = new ArrayList<>();
+
+        //Calling method to get data
+        getData();
     }
 
-    protected class DeleteListener implements View.OnClickListener{
 
-        @Override
-        public void onClick(View view) {
-            AlertDialog.Builder alertDialog = new AlertDialog.Builder(LaporanSayaActivity.this);
 
-            // Setting Dialog Title
-            alertDialog.setTitle("Konfirmasi pembatalan laporan...");
+    //This method will get data from the web api
+    private void getData(){
+        //Showing a progress dialog
+        final ProgressDialog loading = ProgressDialog.show(this,"Loading Data", "Please wait...",false,false);
 
-            // Setting Dialog Message
-            alertDialog.setMessage("Apakah anda ingin membatalkan laporan ini?");
+        //Creating a json array request
+        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Config.DATA_URL,
+                new Response.Listener<JSONArray>() {
+                    @Override
+                    public void onResponse(JSONArray response) {
+                        //Dismissing progress dialog
+                        loading.dismiss();
 
-            // Setting Icon to Dialog
-//            alertDialog.setIcon(R.drawable.delete);
+                        //calling method to parse json array
+                        parseData(response);
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
 
-            // Setting Positive "Yes" Button
-            alertDialog.setPositiveButton("Ya", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog,int which) {
+                    }
+                });
 
-                    // Write your code here to invoke YES event
-                    Toast.makeText(getApplicationContext(), "You clicked on YES", Toast.LENGTH_SHORT).show();
-                }
-            });
+        //Creating request queue
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
 
-            // Setting Negative "NO" Button
-            alertDialog.setNegativeButton("Tidak", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int which) {
-                    // Write your code here to invoke NO event
-                    Toast.makeText(getApplicationContext(), "You clicked on NO", Toast.LENGTH_SHORT).show();
-                    dialog.cancel();
-                }
-            });
+        //Adding request to the queue
+        requestQueue.add(jsonArrayRequest);
+    }
 
-            // Showing Alert Message
-            alertDialog.show();
+    //This method will parse json data
+    private void parseData(JSONArray array){
+        for(int i = 0; i<array.length(); i++) {
+            DataLaporan dataLaporan = new DataLaporan();
+            JSONObject json = null;
+            try {
+                json = array.getJSONObject(i);
+                dataLaporan.setImageUrl(json.getString(Config.TAG_IMAGE_URL));
+                dataLaporan.setNameImg(json.getString(Config.TAG_NAME));
+                dataLaporan.setAnnotation(json.getString(Config.TAG_ANNOTATION));
+                dataLaporan.setCoordinate(json.getString(Config.TAG_COORDINATE));
+                dataLaporan.setDate(json.getString(Config.TAG_DATE));
 
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            listDataLaporans.add(dataLaporan);
         }
+
+        //Finally initializing our adapter
+        adapter = new CardAdapter(listDataLaporans, this);
+
+        //Adding adapter to recyclerview
+        recyclerView.setAdapter(adapter);
     }
 }
