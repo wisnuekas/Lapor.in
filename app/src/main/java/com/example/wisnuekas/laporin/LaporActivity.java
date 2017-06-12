@@ -1,10 +1,14 @@
 package com.example.wisnuekas.laporin;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -13,6 +17,8 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Base64;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -22,7 +28,12 @@ import android.widget.Toast;
 import net.gotev.uploadservice.MultipartUploadRequest;
 import net.gotev.uploadservice.UploadNotificationConfig;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.text.Annotation;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.UUID;
 
 
@@ -31,7 +42,8 @@ public class LaporActivity extends AppCompatActivity {
     private Button buttonChoose;
     private Button buttonSend;
     private ImageView imageUpload;
-    private EditText annotation;
+    private EditText annotationEditText;
+    private EditText coordinateEditText;
 
     //Image request code
     private int PICK_IMAGE_REQUEST = 1;
@@ -44,6 +56,9 @@ public class LaporActivity extends AppCompatActivity {
 
     //Uri to store the image uri
     private Uri filePath;
+
+    String nameImg;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,31 +74,49 @@ public class LaporActivity extends AppCompatActivity {
         buttonChoose = (Button) findViewById(R.id.button_choose);
         buttonSend = (Button) findViewById(R.id.button_send);
         imageUpload = (ImageView) findViewById(R.id.image_upload);
-        annotation = (EditText) findViewById(R.id.annotation);
+        coordinateEditText = (EditText) findViewById(R.id.geo_tag);
+        annotationEditText = (EditText) findViewById(R.id.annotation);
 
         //Setting clicklistener
         buttonChoose.setOnClickListener(new ImageListener());
         buttonSend.setOnClickListener(new SendListener());
+        coordinateEditText.setOnClickListener(new CoordinateListener());
     }
 
     public void uploadMultipart() {
-        //getting name for the image
-        String name = annotation.getText().toString().trim();
+
+        annotationEditText = (EditText) findViewById(R.id.annotation);
+        String annotation = annotationEditText.getText().toString();
 
         //getting the actual path of the image
         String path = getPath(filePath);
+
+        //Date time
+        DateFormat df = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss");
+        String date = df.format(Calendar.getInstance().getTime()).toString();
+
+        //Coordinate
+        coordinateEditText = (EditText) findViewById(R.id.geo_tag);
+        String coordinate = coordinateEditText.getText().toString();
+
+        //getting name for the image
+        String nameImg = date+"_"+coordinate;
+
 
         //Uploading code
         try {
             String uploadId = UUID.randomUUID().toString();
 
             //Creating a multi part request
-//            new MultipartUploadRequest(this, uploadId, SyncStateContract.Constants.UPLOAD_URL)
-//                    .addFileToUpload(path, "image") //Adding file
-//                    .addParameter("name", name) //Adding text parameter to the request
-//                    .setNotificationConfig(new UploadNotificationConfig())
-//                    .setMaxRetries(2)
-//                    .startUpload(); //Starting the upload
+            new MultipartUploadRequest(this, uploadId, Constants.UPLOAD_URL)
+                    .addFileToUpload(path, "image") //Adding file
+                    .addParameter("name_img", nameImg)
+                    .addParameter("annotation", annotation) //Adding text parameter to the request
+                    .addParameter("coordinate", coordinate)
+                    .addParameter("date", date)
+                    .setNotificationConfig(new UploadNotificationConfig())
+                    .setMaxRetries(2)
+                    .startUpload(); //Starting the upload
 
         } catch (Exception exc) {
             Toast.makeText(this, exc.getMessage(), Toast.LENGTH_SHORT).show();
@@ -93,7 +126,7 @@ public class LaporActivity extends AppCompatActivity {
     //method to show file chooser
     private void showFileChooser() {
         Intent intent = new Intent();
-        intent.setType("image/*");
+        intent.setType("image/jpeg");
         intent.setAction(Intent.ACTION_GET_CONTENT);
         startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
     }
@@ -180,11 +213,133 @@ public class LaporActivity extends AppCompatActivity {
 
         @Override
         public void onClick(View view) {
-//            uploadMultipart();
+            uploadMultipart();
 
             Toast.makeText(getApplicationContext(), "Kirim", Toast.LENGTH_SHORT).show();
 
 
         }
+    }
+
+    protected class CoordinateListener implements View.OnClickListener{
+
+        @Override
+        public void onClick(View v) {
+            Bitmap bitmap = ((BitmapDrawable)imageUpload.getDrawable()).getBitmap();
+            String imageEncode = encodeToBase64(bitmap);
+
+            annotationEditText = (EditText) findViewById(R.id.annotation);
+            String annotation = annotationEditText.getText().toString();
+
+            Intent i = new Intent(LaporActivity.this, MapsActivity.class);
+            i.putExtra("IMAGE_ENCODE", imageEncode);
+            i.putExtra("ANNOTATION", annotation);
+
+            startActivity(i);
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        String imgEncode = getIntent().getStringExtra("IMG_ENCODE");
+        String annotation = getIntent().getStringExtra("ANNOTATION");
+        String koordinat = getIntent().getStringExtra("KOORDINAT");
+
+        imageUpload = (ImageView) findViewById(R.id.image_upload);
+        if (imgEncode != null){
+            Bitmap bitmapsaved = decodeToBase64(imgEncode);
+            imageUpload.setImageBitmap(bitmapsaved);
+        }
+
+
+        coordinateEditText = (EditText) findViewById(R.id.geo_tag);
+        coordinateEditText.setText(koordinat);
+
+        annotationEditText = (EditText) findViewById(R.id.annotation);
+        annotationEditText.setText(annotation);
+    }
+
+    //    @Override
+//    protected void onResume() {
+//        super.onResume();
+//
+//        String koordinat = getIntent().getStringExtra("KOORDINAT");
+//        coordinateEditText = (EditText) findViewById(R.id.geo_tag);
+//        coordinateEditText.setText(koordinat);
+//
+//        SharedPreferences activityPreferences = getPreferences(MODE_PRIVATE);
+//        String imageStr = activityPreferences.getString("IMAGE", "");
+//        String annotation = activityPreferences.getString("ANNOTATION", "");
+//        nameImg = activityPreferences.getString("NAME_IMG", "");
+//        Bitmap bitmapsaved = decodeToBase64(imageStr);
+//        imageUpload = (ImageView) findViewById(R.id.image_upload);
+//        //imageUpload.setImageBitmap(bitmapsaved);
+//
+//        annotationEditText = (EditText) findViewById(R.id.annotation);
+//        annotationEditText.setText(annotation);
+//
+//
+//    }
+
+//    @Override
+//    protected void onDestroy() {
+//        super.onDestroy();
+//
+//        SharedPreferences activityPreferences = getPreferences(MODE_PRIVATE);
+//        SharedPreferences.Editor editor = activityPreferences.edit();
+//
+//        editor.clear();
+//        editor.commit();
+//
+//    }
+
+//    @Override
+//    protected void onPause() {
+//        super.onPause();
+//
+//        imageUpload = (ImageView) findViewById(R.id.image_upload);
+//        Bitmap bitmap = ((BitmapDrawable)imageUpload.getDrawable()).getBitmap();
+//
+//        annotationEditText = (EditText) findViewById(R.id.annotation);
+//        String annotation = annotationEditText.getText().toString();
+//
+//        coordinateEditText = (EditText) findViewById(R.id.geo_tag);
+//        String coordinate = coordinateEditText.getText().toString();
+//
+//        //Date time
+//        DateFormat df = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss");
+//        String date = df.format(Calendar.getInstance().getTime());
+//
+//        String nameImg = date+"_"+coordinate;
+//
+//        SharedPreferences activityPreferences = getPreferences(Activity.MODE_PRIVATE);
+//
+//        SharedPreferences.Editor editor = activityPreferences.edit();
+//
+//        editor.putString("IMAGE", encodeToBase64(bitmap));
+//        editor.putString("ANNOTATION",  annotation);
+//        editor.putString("COORDINATE", coordinate);
+//        editor.putString("NAME_IMG", nameImg);
+//
+//        editor.commit();
+//
+//    }
+
+    public static String encodeToBase64(Bitmap image) {
+        Bitmap immage = image;
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        immage.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+        byte[] b = baos.toByteArray();
+        String imageEncoded = Base64.encodeToString(b, Base64.DEFAULT);
+
+        Log.d("Image Log:", imageEncoded);
+        return imageEncoded;
+    }
+
+    public static Bitmap decodeToBase64(String input) {
+        byte[] decodedByte = Base64.decode(input, 0);
+        return BitmapFactory.decodeByteArray(decodedByte, 0, decodedByte.length);
     }
 }
