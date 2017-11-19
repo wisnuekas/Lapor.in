@@ -5,6 +5,6 @@ package com.example.wisnuekas.laporin;
  */
 
 public class Constants {
-    public static final String UPLOAD_URL = "http://172.24.250.33/laporin/upload.php";
-    public static final String DATA_URL = "http://172.24.250.33/laporin/getData.php";
+    public static final String UPLOAD_URL = "http://192.168.43.7/laporin/upload.php";
+    public static final String DATA_URL = "http://192.168.43.7/laporin/getData.php";
 }

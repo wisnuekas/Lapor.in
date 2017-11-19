@@ -29,7 +29,8 @@
                 android:text="Lapor.in 1 || 05 Mei 2017 || 18.30"
                 android:layout_marginTop="16dp"
                 android:layout_marginLeft="16dp"
-                android:layout_marginRight="16dp"/>
+                android:layout_marginRight="16dp"
+                android:layout_marginBottom="10dp"/>
 
             <com.android.volley.toolbox.NetworkImageView
                 android:id="@+id/image_view"

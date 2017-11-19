@@ -13,14 +13,15 @@
         android:id="@+id/lapor.in_textview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Lapor.in"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="32dp"
-        android:textSize="64sp"/>
+        android:fontFamily="cursive"
+        android:text="Lapor.in"
+        android:textSize="64sp" />
 
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="264dp"
         android:layout_height="wrap_content"
         android:layout_below="@id/lapor.in_textview"
         android:layout_centerHorizontal="true"

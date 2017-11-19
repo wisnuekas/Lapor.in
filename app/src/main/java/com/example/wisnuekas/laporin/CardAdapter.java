@@ -3,6 +3,7 @@ package com.example.wisnuekas.laporin;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -38,6 +39,7 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.laporan_list, parent, false);
+
         ViewHolder viewHolder = new ViewHolder(v);
         return viewHolder;
     }
@@ -66,21 +68,35 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
         public TextView textViewDate;
         public TextView textViewAnnotation;
         public TextView textViewCoordinate;
+        public TextView textViewDelete;
+
 
         public ViewHolder(View itemView) {
             super(itemView);
             imageView = (NetworkImageView) itemView.findViewById(R.id.image_view);
             textViewDate = (TextView) itemView.findViewById(R.id.date_laporan);
             textViewAnnotation = (TextView) itemView.findViewById(R.id.annotation_view);
-            textViewCoordinate= (TextView) itemView.findViewById(R.id.coordinate_view);
+            textViewCoordinate = (TextView) itemView.findViewById(R.id.coordinate_view);
+            textViewDelete = (TextView) itemView.findViewById(R.id.cancelLaporan1);
+
+            textViewDelete.setOnClickListener(new DeleteListener());
+            textViewCoordinate.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent i = new Intent(context, MapsViewActivity.class);
+                    i.putExtra("COORDINATE", textViewCoordinate.getText());
+                    context.startActivity(i);
+                }
+            });
         }
+
     }
 
-        protected class DeleteListener implements View.OnClickListener{
+    protected class DeleteListener implements View.OnClickListener{
 
         @Override
         public void onClick(View view) {
-            AlertDialog.Builder alertDialog = new AlertDialog.Builder(LaporanSayaActivity.this);
+            AlertDialog.Builder alertDialog = new AlertDialog.Builder(context);
 
             // Setting Dialog Title
             alertDialog.setTitle("Konfirmasi pembatalan laporan...");
@@ -96,7 +112,7 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
                 public void onClick(DialogInterface dialog,int which) {
 
                     // Write your code here to invoke YES event
-                    Toast.makeText(getApplicationContext(), "You clicked on YES", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "Ya", Toast.LENGTH_SHORT).show();
                 }
             });
 
@@ -104,7 +120,7 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
             alertDialog.setNegativeButton("Tidak", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int which) {
                     // Write your code here to invoke NO event
-                    Toast.makeText(getApplicationContext(), "You clicked on NO", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "Tidak", Toast.LENGTH_SHORT).show();
                     dialog.cancel();
                 }
             });
@@ -114,4 +130,5 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
 
         }
     }
+
 }
